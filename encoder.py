@@ -1,6 +1,7 @@
 import tones
 import pandas
 import time
+from datetime import datetime
 
 
 # NEW ACSCII USES 7 BITS, MOST SIGNIFICANT BIT IS 0
@@ -78,15 +79,19 @@ def menuHandling(filename):
                         print("Please enter a number between 1 and", len(menu), "!")
                         break
                 else:
-                    # Retrieve each selected row using its zero-based index
-                    result = [menu.iloc[number - 1] for number in selections]
+                    # Retrieve the second column from each selected row
+                    result = [menu.iloc[number - 1, 1] for number in selections]
+
+                    # Combine all selected entries into one string
+                    result = "".join(map(str, result))
+
                     print(result)
                     return result
 
             else:
                 # Standard single-selection menu
                 result = menu.iloc[int(selection) - 1]
-                return result
+                return result[0]
 
         except (ValueError, TypeError):
             print("Please enter a basic number, with no letters or decimals!")
@@ -96,6 +101,51 @@ def menuHandling(filename):
             print("This isn't within the range of possible options!")
             print("Please enter a number between 1 and", len(menu), "!")
 
+def timeHandling():
+    while True:
+        print("Please enter a time for the alert to end in the following structure: ")
+        print("MM:DD:YY:HH:MM")
+        inputTime = input("Input time: ")
+        # Time will hold Month (0), Day (1), Year (2), Hour (3), Minute (4)
+        time =inputTime.split(":")
+        ########### TO ADD ###########
+        # Eventually, the ability to break it down just by how many digits are in it would be nice, but not necessary for now
+        ########### TO ADD ###########
+        if len(inputTime.split(":")) != 5:
+            print("Your input must follow the MM:DD:YY:HH:MM structure! Be sure to include colons!")
+        else:
+            return inputTime
+        
 
 ################## MAIN LOOP ##################
+
+# This is the main loop that users will be in to create alerts, view their history, etc.
+
+# Instead of using menuHandling for this, I left this out of that to keep this distinct and not rely on using menuHandling back to back
+while True:
+    print("1). Create and transmit an alert")
+    print("2). Display previous alerts")
+    menuChoice = (input("Select an option: ")).strip()
+    if menuChoice == "1":
+        print("\n=============== Alert Selection ===============")
+        print("Type the number corresponding to the alert to select: ")
+        time.sleep(2)
+        alert = menuHandling("CSVs/alertcodes.csv")
+
+        print("\n=============== Location/Building Selection ===============")
+        print("Type the number corresponding to the location(s) to select: ")
+        time.sleep(2)
+        location = menuHandling("CSVs/buildingcodes.csv")
+
+        print("\n=============== Time Selection ===============")
+        time.sleep(2)
+        timeToEnd = timeHandling()
+
+        fullMessage = alert + "-" + location + "-" + timeToEnd
+        print(fullMessage)
+        createMessage(fullMessage)
+        exit 
+        
+
+
 
